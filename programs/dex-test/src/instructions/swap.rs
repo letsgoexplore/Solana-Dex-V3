@@ -3,6 +3,7 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token::{self, Mint, Token, TokenAccount, Transfer},
 };
+use fixed::types::I64F64;
 
 use crate::{
     constants::AUTHORITY_SEED,
@@ -31,60 +32,28 @@ pub fn swap(
 
     let pool_a = &ctx.accounts.pool_account_a;
     let pool_b = &ctx.accounts.pool_account_b;
-    // let output = if swap_a {
-    //     I64F64::from_num(taxed_input)
-    //         .checked_mul(I64F64::from_num(pool_b.amount))
-    //         .unwrap()
-    //         .checked_div(
-    //             I64F64::from_num(pool_a.amount)
-    //                 .checked_add(I64F64::from_num(taxed_input))
-    //                 .unwrap(),
-    //         )
-    //         .unwrap()
-    // } else {
-    //     I64F64::from_num(taxed_input)
-    //         .checked_mul(I64F64::from_num(pool_a.amount))
-    //         .unwrap()
-    //         .checked_div(
-    //             I64F64::from_num(pool_b.amount)
-    //                 .checked_add(I64F64::from_num(taxed_input))
-    //                 .unwrap(),
-    //         )
-    //         .unwrap()
-    // }
-    // .to_num::<u64>();
-
-    let output = {
-        let taxed_input_f64 = taxed_input as f64;
-        let pool_a_amount_f64 = pool_a.amount as f64;
-        let pool_b_amount_f64 = pool_b.amount as f64;
-    
-        let result = if swap_a {
-            let numerator = taxed_input_f64 * pool_b_amount_f64;
-            let denominator = pool_a_amount_f64 + taxed_input_f64;
-    
-            if denominator == 0.0 {
-                panic!("Denominator is zero");
-            }
-    
-            numerator / denominator
-        } else {
-            let numerator = taxed_input_f64 * pool_a_amount_f64;
-            let denominator = pool_b_amount_f64 + taxed_input_f64;
-    
-            if denominator == 0.0 {
-                panic!("Denominator is zero");
-            }
-    
-            numerator / denominator
-        };
-    
-        if result < 0.0 || result > u64::MAX as f64 {
-            panic!("Result out of u64 range");
-        }
-    
-        result as u64
-    };
+    let output = if swap_a {
+        I64F64::from_num(taxed_input)
+            .checked_mul(I64F64::from_num(pool_b.amount))
+            .unwrap()
+            .checked_div(
+                I64F64::from_num(pool_a.amount)
+                    .checked_add(I64F64::from_num(taxed_input))
+                    .unwrap(),
+            )
+            .unwrap()
+    } else {
+        I64F64::from_num(taxed_input)
+            .checked_mul(I64F64::from_num(pool_a.amount))
+            .unwrap()
+            .checked_div(
+                I64F64::from_num(pool_b.amount)
+                    .checked_add(I64F64::from_num(taxed_input))
+                    .unwrap(),
+            )
+            .unwrap()
+    }
+    .to_num::<u64>();
 
     if output < min_output_amount {
         return err!(TutorialError::OutputTooSmall);

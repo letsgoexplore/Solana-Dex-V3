@@ -8,7 +8,7 @@ mod instructions;
 mod state;
 
 // Set the correct key here
-declare_id!("B8bLbeEf2bhsjqktMmuabfgA4GmByDuY9WRvzuc7cY72");
+declare_id!("6rCS118rRLaT8nJt4Pb32cwhHVVg1y1AnpjcWiybQ88m");
 
 #[program]
 pub mod dex_test {

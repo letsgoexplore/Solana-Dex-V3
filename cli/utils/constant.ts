@@ -41,5 +41,7 @@ console.log(`>>>>>>>>>current RPC_URL: ${process.env.RPC_URL}`);
 
 //program
 export const dexProgram = new Program(dexIdl as anchor.Idl, process.env.DEX_PROGRAM_ID, provider);
+export const dexProgramId = process.env.DEX_PROGRAM_ID;
 console.log(`>>>>>>>>>current DEX_PROGRAM_ID: ${process.env.DEX_PROGRAM_ID}`);
 
+export const SOLANA_PROGRAM_ID = new PublicKey("11111111111111111111111111111111");

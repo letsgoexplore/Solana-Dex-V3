@@ -3,6 +3,7 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token::{self, Burn, Mint, Token, TokenAccount, Transfer},
 };
+use fixed::types::I64F64;
 
 use crate::{
     constants::{AUTHORITY_SEED, LIQUIDITY_SEED, MINIMUM_LIQUIDITY},
@@ -21,29 +22,15 @@ pub fn withdraw_liquidity(ctx: Context<WithdrawLiquidity>, amount: u64) -> Resul
     let signer_seeds = &[&authority_seeds[..]];
 
     // Transfer tokens from the pool
-    let amount_a = {
-        let amount_f64 = amount as f64;
-        let pool_account_a_amount_f64 = ctx.accounts.pool_account_a.amount as f64;
-        let mint_liquidity_supply_f64 = ctx.accounts.mint_liquidity.supply as f64;
-        let minimum_liquidity_f64 = MINIMUM_LIQUIDITY as f64;
-    
-        let numerator = amount_f64 * pool_account_a_amount_f64;
-        let denominator = mint_liquidity_supply_f64 + minimum_liquidity_f64;
-    
-        if denominator == 0.0 {
-            panic!("Denominator is zero");
-        }
-    
-        let result = numerator / denominator;
-        let floored_result = result.floor();
-    
-        if floored_result < 0.0 || floored_result > u64::MAX as f64 {
-            panic!("Result out of u64 range");
-        }
-    
-        floored_result as u64
-    };
-
+    let amount_a = I64F64::from_num(amount)
+        .checked_mul(I64F64::from_num(ctx.accounts.pool_account_a.amount))
+        .unwrap()
+        .checked_div(I64F64::from_num(
+            ctx.accounts.mint_liquidity.supply + MINIMUM_LIQUIDITY,
+        ))
+        .unwrap()
+        .floor()
+        .to_num::<u64>();
     token::transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -57,28 +44,15 @@ pub fn withdraw_liquidity(ctx: Context<WithdrawLiquidity>, amount: u64) -> Resul
         amount_a,
     )?;
 
-    let amount_b = {
-    let amount_f64 = amount as f64;
-    let pool_account_b_amount_f64 = ctx.accounts.pool_account_b.amount as f64;
-    let mint_liquidity_supply_f64 = ctx.accounts.mint_liquidity.supply as f64;
-    let minimum_liquidity_f64 = MINIMUM_LIQUIDITY as f64;
-
-    let numerator = amount_f64 * pool_account_b_amount_f64;
-    let denominator = mint_liquidity_supply_f64 + minimum_liquidity_f64;
-
-    if denominator == 0.0 {
-        panic!("Denominator is zero");
-    }
-
-    let result = numerator / denominator;
-    let floored_result = result.floor();
-
-    if floored_result < 0.0 || floored_result > u64::MAX as f64 {
-        panic!("Result out of u64 range");
-    }
-
-    floored_result as u64
-};
+    let amount_b = I64F64::from_num(amount)
+        .checked_mul(I64F64::from_num(ctx.accounts.pool_account_b.amount))
+        .unwrap()
+        .checked_div(I64F64::from_num(
+            ctx.accounts.mint_liquidity.supply + MINIMUM_LIQUIDITY,
+        ))
+        .unwrap()
+        .floor()
+        .to_num::<u64>();
     token::transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),

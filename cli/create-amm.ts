@@ -1,42 +1,53 @@
-// import * as web3 from "@solana/web3.js";
-// import nacl from "tweetnacl";
-// import { SIGNER_KEYPAIR, SIGNER_WALLET, SIGNER_PK, USER_KEYPAIR, USER_WALLET, USER_PK } from './utils/constant';
-// import * as consts from "./utils/constant";
+import * as web3 from "@solana/web3.js";
+import * as consts from "./utils/constant";
 
-
-// async function airdrop(){
-//     let payer = SIGNER_KEYPAIR;
-
-//     let connection = new web3.Connection(web3.clusterApiUrl("devnet"), "confirmed");
+async function createAmm() {
+    let payer = consts.SIGNER_KEYPAIR;
+    let connection = new web3.Connection(web3.clusterApiUrl("devnet"), "confirmed");
     
-//     // 获取最小租金金额
-//     const minRent = await connection.getMinimumBalanceForRentExemption(0);
-//     console.log(minRent);
+    // 生成一个新的随机公钥作为AMM的ID
+    const ammId = web3.Keypair.generate().publicKey;
     
-//     // Create Simple Transaction
-//     let transaction = new web3.Transaction();
-    
-//     let initMarketInstruction = await consts.dexProgram.methods
-//         .createAmm({
-//           amm: 
-//         })
-//         .accounts({
-//             payer: consts.SIGNER_PK,
-//             feeTo: consts.FEE_TO_PK,
-//             nxMarketAdmin: consts.NX_MARKET_ADMIN_PK,
-//             nxMarket: nx_market_pda,
-//             marketAuthority: pdaUtils.market_authority_pda()
-//         }).instruction();
+    // 设置fee (例如0.3% = 30 basis points)
+    const fee = 30;
 
-//     // Add an instruction to execute
-//     transaction.add(
-      
-//     );
+    // 创建交易
+    let transaction = new web3.Transaction();
     
-//     // Send and confirm transaction
-//     // Note: feePayer is by default the first signer, or payer, if the parameter is not set
-//     await web3.sendAndConfirmTransaction(connection, transaction, [payer]);
-// }
+    let createAmmInstruction = await consts.dexProgram.methods
+        .createAmm(ammId, fee)
+        .accounts({
+            amm: web3.PublicKey.findProgramAddressSync(
+                [ammId.toBuffer()],
+                new web3.PublicKey(process.env.DEX_PROGRAM_ID)
+            )[0],
+            admin: consts.SIGNER_PK,
+            payer: consts.SIGNER_PK,
+            systemProgram: consts.SOLANA_PROGRAM_ID,
+        }).instruction();
 
-// // print();
-// airdrop();
+    // 将指令添加到交易中
+    transaction.add(createAmmInstruction);
+    
+    // 获取最近的区块哈希并设置到交易中
+    const { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = payer.publicKey;
+
+    // 对交易进行签名
+    transaction.sign(payer);
+
+    // 发送并确认交易
+    try {
+        const signature = await web3.sendAndConfirmTransaction(
+            connection, 
+            transaction, 
+            [payer]
+        );
+        console.log("success, sig:", signature);
+    } catch (error) {
+        console.error("failed:", error);
+    }
+}
+
+createAmm();

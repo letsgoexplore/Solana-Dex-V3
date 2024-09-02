@@ -3,6 +3,7 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token::{self, Mint, MintTo, Token, TokenAccount, Transfer},
 };
+use fixed::types::I64F64;
 
 use crate::{
     constants::{AUTHORITY_SEED, LIQUIDITY_SEED, MINIMUM_LIQUIDITY},
@@ -36,28 +37,34 @@ pub fn deposit_liquidity(
         // Add as is if there is no liquidity
         (amount_a, amount_b)
     } else {
-        // let ratio = I64F64::from_num(pool_a.amount)
-        //     .checked_mul(I64F64::from_num(pool_b.amount))
-        //     .unwrap();
-        let ratio = pool_a.amount * pool_b.amount;
+        let ratio = I64F64::from_num(pool_a.amount)
+            .checked_mul(I64F64::from_num(pool_b.amount))
+            .unwrap();
         if pool_a.amount > pool_b.amount {
             (
-                amount_b * ratio,
+                I64F64::from_num(amount_b)
+                    .checked_mul(ratio)
+                    .unwrap()
+                    .to_num::<u64>(),
                 amount_b,
             )
         } else {
             (
                 amount_a,
-                amount_a / ratio
+                I64F64::from_num(amount_a)
+                    .checked_div(ratio)
+                    .unwrap()
+                    .to_num::<u64>(),
             )
         }
     };
 
     // Computing the amount of liquidity about to be deposited
-    let liquidity_square = amount_a * amount_b;
-    let liquidity_square_f64 = liquidity_square as f64;
-    let liquidity_f64 = liquidity_square_f64.sqrt();
-    let mut liquidity = liquidity_f64 as u64;
+    let mut liquidity = I64F64::from_num(amount_a)
+        .checked_mul(I64F64::from_num(amount_b))
+        .unwrap()
+        .sqrt()
+        .to_num::<u64>();
 
     // Lock some minimum liquidity on the first deposit
     if pool_creation {
