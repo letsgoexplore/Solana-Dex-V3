@@ -1,7 +1,9 @@
 {
     "scripts": {
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-        "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+        "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+        "tests": "ts-node cli/test.ts",
+        "create-amms": "ts-node cli/create-amms.ts"
     },
     "dependencies": {
         "@coral-xyz/anchor": "^0.29.0",

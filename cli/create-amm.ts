@@ -1,43 +1,42 @@
-import * as anchor from '@coral-xyz/anchor';
-import { Command } from 'commander';
-import type { Program } from '@coral-xyz/anchor';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+// import * as web3 from "@solana/web3.js";
+// import nacl from "tweetnacl";
+// import { SIGNER_KEYPAIR, SIGNER_WALLET, SIGNER_PK, USER_KEYPAIR, USER_WALLET, USER_PK } from './utils/constant';
+// import * as consts from "./utils/constant";
 
-const program = new Command();
 
-program
-  .version('0.1.0')
-  .description('CLI for interacting with the AMM program')
-  .requiredOption('-i, --id <id>', 'AMM ID')
-  .requiredOption('-f, --fee <fee>', 'AMM Fee')
-  .option('-k, --amm-key <ammKey>', 'AMM Key')
-  .option('-a, --admin-key <adminKey>', 'Admin Public Key');
+// async function airdrop(){
+//     let payer = SIGNER_KEYPAIR;
 
-program.parse(process.argv);
+//     let connection = new web3.Connection(web3.clusterApiUrl("devnet"), "confirmed");
+    
+//     // 获取最小租金金额
+//     const minRent = await connection.getMinimumBalanceForRentExemption(0);
+//     console.log(minRent);
+    
+//     // Create Simple Transaction
+//     let transaction = new web3.Transaction();
+    
+//     let initMarketInstruction = await consts.dexProgram.methods
+//         .createAmm({
+//           amm: 
+//         })
+//         .accounts({
+//             payer: consts.SIGNER_PK,
+//             feeTo: consts.FEE_TO_PK,
+//             nxMarketAdmin: consts.NX_MARKET_ADMIN_PK,
+//             nxMarket: nx_market_pda,
+//             marketAuthority: pdaUtils.market_authority_pda()
+//         }).instruction();
 
-const options = program.opts();
-
-const provider = anchor.AnchorProvider.env();
-const connection = provider.connection;
-anchor.setProvider(provider);
-
-const programId = new anchor.web3.PublicKey('YOUR_PROGRAM_ID_HERE'); // 替换为您的程序 ID
-const program = anchor.workspace.DexTest as Program<any>;
-
-async function main() {
-  const ammKey = options['amm-key'] ? new anchor.web3.PublicKey(options['amm-key']) : anchor.web3.Keypair.generate().publicKey;
-  const adminKey = options['admin-key'] ? new anchor.web3.PublicKey(options['admin-key']) : provider.wallet.publicKey;
-
-  try {
-    await program.methods.createAmm(new anchor.BN(options.id), new anchor.BN(options.fee))
-      .accounts({ amm: ammKey, admin: adminKey })
-      .rpc();
+//     // Add an instruction to execute
+//     transaction.add(
       
-    console.log('AMM created successfully');
-  } catch (error) {
-    console.error('Error creating AMM:', error);
-  }
-}
+//     );
+    
+//     // Send and confirm transaction
+//     // Note: feePayer is by default the first signer, or payer, if the parameter is not set
+//     await web3.sendAndConfirmTransaction(connection, transaction, [payer]);
+// }
 
-main();
+// // print();
+// airdrop();
