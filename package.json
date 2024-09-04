@@ -3,12 +3,17 @@
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
         "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
         "tests": "ts-node cli/test.ts",
-        "create-amm": "ts-node cli/create-amm.ts"
+        "create-amm": "ts-node cli/create-amm.ts",
+        "create-pool": "ts-node cli/create-pool.ts",
+        "deposit-liquidity": "ts-node cli/deposit-liquidity.ts",
+        "remove-liquidity": "ts-node cli/remove-liquidity.ts",
+        "swap": "ts-node cli/swap.ts"
     },
     "dependencies": {
         "@coral-xyz/anchor": "^0.29.0",
+        "@solana/buffer-layout": "^4.0.1",
         "@solana/spl-stake-pool": "0.7.0",
-        "@solana/spl-token": "^0.3.8",
+        "@solana/spl-token": "^0.4.8",
         "@solana/web3.js": "^1.95.2",
         "arg": "^5.0.2",
         "commander": "^12.1.0",

@@ -11,7 +11,7 @@ dex_test = "B8bLbeEf2bhsjqktMmuabfgA4GmByDuY9WRvzuc7cY72"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "https://api.devnet.solana.com"
+cluster = "https://dark-intensive-dream.solana-mainnet.quiknode.pro/bcea36be83c7f3b3e1afbb625fa47048926bf67f/"
 wallet = "/Users/jason404/.config/solana/id.json"
 
 [scripts]

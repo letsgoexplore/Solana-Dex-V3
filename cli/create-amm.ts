@@ -1,9 +1,9 @@
 import * as web3 from "@solana/web3.js";
 import * as consts from "./utils/constant";
+import { sendTx } from "./utils/tx_utils";
 
 async function createAmm() {
     let payer = consts.SIGNER_KEYPAIR;
-    let connection = new web3.Connection(web3.clusterApiUrl("devnet"), "confirmed");
     
     // 生成一个新的随机公钥作为AMM的ID
     const ammId = web3.Keypair.generate().publicKey;
@@ -26,11 +26,13 @@ async function createAmm() {
             systemProgram: consts.SOLANA_PROGRAM_ID,
         }).instruction();
 
+    // await sendTx(["create amm"], [createAmmInstruction], [payer]);
+
     // 将指令添加到交易中
     transaction.add(createAmmInstruction);
     
     // 获取最近的区块哈希并设置到交易中
-    const { blockhash } = await connection.getLatestBlockhash();
+    const { blockhash } = await consts.connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = payer.publicKey;
 
@@ -40,7 +42,7 @@ async function createAmm() {
     // 发送并确认交易
     try {
         const signature = await web3.sendAndConfirmTransaction(
-            connection, 
+            consts.connection, 
             transaction, 
             [payer]
         );

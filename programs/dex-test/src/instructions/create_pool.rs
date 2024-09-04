@@ -73,16 +73,12 @@ pub struct CreatePool<'info> {
     pub mint_b: Box<Account<'info, Mint>>,
 
     #[account(
-        init,
-        payer = payer,
         associated_token::mint = mint_a,
         associated_token::authority = pool_authority,
     )]
     pub pool_account_a: Box<Account<'info, TokenAccount>>,
 
     #[account(
-        init,
-        payer = payer,
         associated_token::mint = mint_b,
         associated_token::authority = pool_authority,
     )]

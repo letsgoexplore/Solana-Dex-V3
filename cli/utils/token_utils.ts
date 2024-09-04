@@ -140,7 +140,6 @@ export const createATA = async (
         await sendTx(["createATA"], ixs, [SIGNER_KEYPAIR]);
         return;
     }
-
     return ixs;
 }
 

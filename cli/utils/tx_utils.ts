@@ -1,4 +1,4 @@
-import { LOOK_UP_TABLE_PK, connection } from "./constant";
+import { connection } from "./constant";
 import { LAMPORTS_PER_SOL, PublicKey, Keypair, TransactionInstruction } from "@solana/web3.js";
 import { buildAndSendTxnWithLogs, buildVersionedTransaction, getComputeUnitLimitInstruction, getPriorityFeeInstruction, simulateTx, sleep } from "./instruction_utils";
 
@@ -31,7 +31,6 @@ export async function sendTx(
     txLabel: string[], 
     instructions: TransactionInstruction[], 
     signer_keypairs: Keypair[], 
-    luts: PublicKey[] = []
 ) {
     let payer_pk = signer_keypairs[0].publicKey;
     if (!instructions || instructions.length == 0) return;
@@ -44,7 +43,7 @@ export async function sendTx(
     console.log(instructions.length);
 
     //simulateTx
-    await simulateTx(txLabel, instructions, signer_keypairs, connection,[LOOK_UP_TABLE_PK, ...luts]);
+    await simulateTx(txLabel, instructions, signer_keypairs, connection);
 
 
 
@@ -53,7 +52,7 @@ export async function sendTx(
     while (i > 0) {
         i--;
         try {
-            const preTxn = await buildVersionedTransaction(connection, payer_pk, instructions,[LOOK_UP_TABLE_PK, ...luts]);
+            const preTxn = await buildVersionedTransaction(connection, payer_pk, instructions);
             const txHash = await buildAndSendTxnWithLogs(connection, preTxn, signer_keypairs, true);
             console.log(`tx:${txLabel} success. txHash:`, txHash);
             break;
